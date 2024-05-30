@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
+import { validateToken } from '../services/apiServices/fetchService';
 
 const withAuth = (Component) => {
     const WithAuthComponent = (props) => {
@@ -8,21 +9,9 @@ const withAuth = (Component) => {
 
         useEffect(() => {
             const checkToken = async () => {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    setLoading(false);
-                    return;
-                }
-                
                 try {
-                    const response = await fetch('http://127.0.0.1:3200/api/validate-token', {
-                        method: 'GET',
-                        headers: {
-                            'x-access-token': token
-                        }
-                    });
-
-                    if (response.ok) {
+                    const data = await validateToken();
+                    if (data.status == 'success') {
                         setAuthenticated(true);
                     } else {
                         setAuthenticated(false);

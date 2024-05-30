@@ -15,6 +15,7 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
+import { login } from '../../../services/apiServices/fetchService'
 
 const Login = () => {
 
@@ -22,27 +23,22 @@ const Login = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const response = await fetch('http://127.0.0.1:3200/api/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      // Save the token or user data as required
-      localStorage.setItem('token', data.token);
-      navigate('/dashboard');
-    } else {
-      // Handle errors
-      setError(data.message || 'An error occurred');
+    try {
+      const data = await login(email, password);
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        navigate('/dashboard'); // Redirect to dashboard after successful login
+      } else {
+        setError('Invalid credentials');
+      }
+    } catch (err) {
+      setError('An error occurred');
     }
+
   };
 
   return (
