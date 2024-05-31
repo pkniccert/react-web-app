@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   CButton,
@@ -15,22 +15,43 @@ import {
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
-import { login } from '../../../services/apiServices/fetchService'
+import { login, validateToken } from '../../../services/apiServices/fetchService'
 
 const Login = () => {
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
+          const data = await validateToken();
+          if (data.status == 'success') {
+            navigate('/dashboard');
+          } else {
+            navigate('/login');
+          }
+        }else{
+          navigate('/login');
+        }
+      } catch (error) {
+        navigate('/login');
+      }
+    }
+    checkAuth();
+  }, []);
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
       const data = await login(email, password);
-      if (data.token) {
-        localStorage.setItem('token', data.token);
+      if (data.user.token) {
+        localStorage.setItem('token', data.user.token);
         navigate('/dashboard'); // Redirect to dashboard after successful login
       } else {
         setError('Invalid credentials');
@@ -93,8 +114,7 @@ const Login = () => {
                   <div>
                     <h2>Sign up</h2>
                     <p>
-                      Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                      tempor incididunt ut labore et dolore magna aliqua.
+                      Have you create a new account ?
                     </p>
                     <Link to="/register">
                       <CButton color="primary" className="mt-3" active tabIndex={-1}>

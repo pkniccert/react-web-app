@@ -1,10 +1,6 @@
 // src/api/fetchInstance.js
 const API_BASE_URL = 'http://127.0.0.1:3200/api'; // FastAPI backend URL
 
-const getAuthToken = () => {
-  return localStorage.getItem('token');
-};
-
 const handleResponse = async (response) => {
   if (!response.ok) {
     if (response.status === 401) {
@@ -17,13 +13,12 @@ const handleResponse = async (response) => {
   return response.json();
 };
 
-const fetchInstance = {
+const withoutTokenInstance = {
   get: async (url) => {
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'x-access-token': getAuthToken(),
       },
     });
     return handleResponse(response);
@@ -33,7 +28,6 @@ const fetchInstance = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-access-token': getAuthToken(),
       },
       body: JSON.stringify(data),
     });
@@ -42,4 +36,4 @@ const fetchInstance = {
   // Add more methods (put, delete) as needed
 };
 
-export default fetchInstance;
+export default withoutTokenInstance;
